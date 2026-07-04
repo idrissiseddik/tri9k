@@ -1,575 +1,351 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طريقك - طلب رحلة</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>طريقك - قريباً</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        :root { --primary-green: #2E7D32; --dark-bg: #121212; --card-bg: #1E1E1E; --text-color: #e0e0e0; --input-bg: #2c2c2c; --label-color: #b0b0b0; --admin-red: #d32f2f; --expired-bg: #3d1a1a; --expired-border: #8b0000; }
-        body { background-color: var(--dark-bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; }
-        label, .form-label, .small.text-muted { color: var(--label-color) !important; }
-        ::placeholder { color: #666 !important; opacity: 1; }
-        .app-header { background: linear-gradient(45deg, var(--primary-green), #1b5e20); padding: 25px 20px; border-radius: 0 0 25px 25px; text-align: center; margin-bottom: 20px; color: white; position: relative; }
-        .admin-trigger { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.5); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .admin-trigger.active { background: var(--admin-red); color: white; animation: pulse 2s infinite; }
-        .custom-card { background-color: var(--card-bg); border: none; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .form-control { background-color: var(--input-bg); border: 1px solid #444; color: white !important; border-radius: 10px; padding: 12px; }
-        .form-control:focus { background-color: #333; border-color: var(--primary-green); box-shadow: none; }
-        .btn-success-custom { background-color: var(--primary-green); border: none; border-radius: 10px; padding: 12px 20px; font-weight: bold; color: white; }
-        .contact-btn { 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
-            display: inline-flex;
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1.2rem; 
-            text-decoration: none; 
-            color: white;
-            margin: 0 5px;
-            transition: all 0.3s ease;
+        /* ---------- RESET & BASE ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .contact-btn:hover {
-            transform: scale(1.1);
-            color: white;
+
+        html,
+        body {
+            height: 100%;
         }
-        .btn-whatsapp { background-color: #25D366; }
-        .btn-call { background-color: #007bff; }
-        .route-display { font-size: 1.2rem; font-weight: 800; color: white; margin-bottom: 5px; }
-        .route-label { color: #a5d6a7; font-weight: bold; margin: 0 4px; }
-        .route-arrow { color: var(--primary-green); margin: 0 8px; }
-        .time-badge { background-color: rgba(46, 125, 50, 0.2); color: #81c784; padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; display: inline-block; margin-top: 5px; }
-        .admin-delete-btn { background-color: rgba(211, 47, 47, 0.1); color: #ff5252; border: 1px solid rgba(211, 47, 47, 0.3); width: 100%; margin-top: 10px; padding: 8px; border-radius: 8px; font-weight: bold; }
-        .admin-delete-btn:hover { background-color: var(--admin-red); color: white; }
-        .app-footer { position: fixed; bottom: 0; width: 100%; background-color: #0f0f0f; color: #777; text-align: center; padding: 12px; font-size: 0.8rem; border-top: 1px solid #333; z-index: 1000; }
-        .hidden { display: none !important; }
-        .nav-tabs { border-bottom: 1px solid #444; }
-        .nav-link { color: #aaa; border: none; font-weight: bold; }
-        .nav-link.active { background: transparent; color: var(--primary-green) !important; border-bottom: 2px solid var(--primary-green); }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; display:flex; justify-content:center; align-items:center; }
-        .req-badge { background-color: #ff9800; color: #000; padding: 2px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; margin-right: 8px; }
-        
-        .custom-card.expired {
-            background-color: var(--expired-bg) !important;
-            border: 2px solid var(--expired-border) !important;
-            opacity: 0.85;
+
+        body {
+            background: #0b0b0b;
+            color: #eaeaea;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 18px 80px;
+            margin: 0;
+            min-height: 100vh;
         }
-        .custom-card.expired .route-display {
-            color: #ff6b6b !important;
+
+        .wrapper {
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        .custom-card.expired .route-label {
-            color: #ff9999 !important;
+
+        /* ---------- ICÔNE APP ---------- */
+        .app-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(145deg, #2E7D32, #1b5e20);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            color: #fff;
+            margin: 0 auto 14px;
+            box-shadow: 0 10px 28px rgba(46, 125, 50, 0.25);
+            animation: softPulse 3s infinite ease-in-out;
         }
-        .custom-card.expired .time-badge {
-            background-color: rgba(139, 0, 0, 0.3) !important;
-            color: #ff6b6b !important;
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
         }
-        .custom-card.expired .expired-label {
-            color: #ff4444 !important;
-            font-weight: bold;
-            background-color: rgba(255, 0, 0, 0.15);
-            padding: 2px 12px;
-            border-radius: 20px;
+        h1 i {
+            color: #2E7D32;
+        }
+
+        .tagline {
+            color: #888;
+            font-size: 1rem;
+            margin-bottom: 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 18px;
+        }
+
+        /* ---------- TITRE "BIENTÔT" ---------- */
+        .big-icon {
+            font-size: 3.6rem;
+            color: #2E7D32;
+            opacity: 0.6;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .soon-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .soon-title span {
+            color: #2E7D32;
+        }
+
+        .sub-text {
+            color: #999;
+            font-size: 0.95rem;
+            margin: 10px 0 28px;
+            line-height: 1.7;
+        }
+
+        /* ---------- SITE UNIQUE (UN SEUL À LA FOIS) ---------- */
+        .sites-section {
+            margin-top: 12px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .sites-label {
             font-size: 0.7rem;
-            border: 1px solid #ff4444;
-            margin-right: 8px;
+            color: #555;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 16px;
         }
-        .custom-card.expired .contact-btn {
-            opacity: 0.5;
-            pointer-events: none;
-            cursor: not-allowed;
+        .sites-label i {
+            color: #2E7D32;
+            margin: 0 6px;
         }
-        
-        /* NEW: Contact buttons container at bottom */
-        .contact-buttons-container {
+
+        .site-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            min-height: 60px;
+            position: relative;
         }
-        .contact-buttons-container .contact-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 1rem;
+
+        /* ---- un seul site affiché à la fois ---- */
+        .site-item {
+            background: transparent;
+            padding: 8px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #b0b0b0;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.25s ease, transform 0.25s ease;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.04);
+            padding-bottom: 4px;
+            opacity: 0;
+            animation-duration: 0.8s;
+            animation-timing-function: ease;
+            animation-fill-mode: forwards;
+            position: absolute;
+        }
+
+        .site-item i {
+            color: #2E7D32;
+            font-size: 0.8rem;
+            transition: color 0.25s;
+        }
+
+        .site-item:hover {
+            color: #fff;
+            transform: translateY(-2px) scale(1.02);
+        }
+        .site-item:hover i {
+            color: #4caf50;
+        }
+
+        /* ----- ANIMATIONS INDIVIDUELLES ----- */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.92); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes zoomIn {
+            0% { opacity: 0; transform: scale(0.4); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(25px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideLeft {
+            0% { opacity: 0; transform: translateX(30px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideRight {
+            0% { opacity: 0; transform: translateX(-30px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 0.8; transform: scale(1.15); }
+            70% { transform: scale(0.92); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes flipIn {
+            0% { opacity: 0; transform: perspective(400px) rotateY(90deg); }
+            100% { opacity: 1; transform: perspective(400px) rotateY(0); }
+        }
+        @keyframes rotateIn {
+            0% { opacity: 0; transform: rotate(-180deg) scale(0.4); }
+            100% { opacity: 1; transform: rotate(0) scale(1); }
+        }
+        @keyframes pulseGlow {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.08); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideDown {
+            0% { opacity: 0; transform: translateY(-25px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- FOOTER FIXE ---------- */
+        .credit-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #0b0b0b;
+            font-size: 0.7rem;
+            color: #444;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 14px 18px;
+            z-index: 100;
+        }
+        .credit-footer strong {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+        .credit-footer i {
+            color: #2E7D32;
+            margin: 0 4px;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 420px) {
+            h1 { font-size: 1.9rem; }
+            .site-item { font-size: 0.95rem; }
+            .wrapper { padding: 0 4px; }
+            body { padding: 24px 12px 80px; }
+        }
+
+        @keyframes softPulse {
+            0% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.7; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-    <div id="loader" class="loading-overlay hidden">
-        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
-    </div>
+    <div class="wrapper">
 
-    <div class="app-header">
-        <button class="admin-trigger" onclick="toggleAdminMode()" title="دخول المسؤول"><i class="fas fa-shield-alt"></i></button>
-        <h2><i class="fas fa-taxi"></i> طريقك - طلب رحلة</h2>
-        <p class="mb-0 small opacity-75">طلب رحلة / شارك الكرسي مع ناس بحالك</p>
-    </div>
+        <!-- ICÔNE & TITRE -->
+        <div class="app-icon">
+            <i class="fas fa-taxi"></i>
+        </div>
+        <h1><i class="fas fa-route"></i> طريقك</h1>
+        <div class="tagline">Marrakech • طلب رحلات داخلية</div>
 
-    <div class="container">
-        <!-- AUTH SECTION -->
-        <div id="authSection">
-            <div class="custom-card p-4">
-                <ul class="nav nav-tabs nav-fill mb-3" id="authTab" role="tablist">
-                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#login">تسجيل الدخول</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#register">حساب جديد</button></li>
-                </ul>
-                <div class="tab-content">
-                    <!-- LOGIN -->
-                    <div class="tab-pane fade show active" id="login">
-                        <form id="loginForm">
-                            <div class="mb-3">
-                                <label class="form-label">رقم الهاتف</label>
-                                <input type="tel" id="l_phone" class="form-control" placeholder="2126... أو 06..." required>
-                                <div class="form-text text-warning small">⚠️ يقبل الأرقام التي تبدأ بـ 212 أو 0</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">كلمة المرور</label>
-                                <input type="password" id="l_pass" class="form-control" placeholder="••••••" required>
-                            </div>
-                            <button type="submit" class="btn btn-success-custom w-100">دخول</button>
-                        </form>
-                    </div>
-                    <!-- INSCRIPTION -->
-                    <div class="tab-pane fade" id="register">
-                        <form id="regForm">
-                            <div class="mb-3">
-                                <label class="form-label">الاسم المستعار (للظهور فقط)</label>
-                                <input type="text" id="r_pseudo" class="form-control" placeholder="مثال: مسافر مراكش" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">رقم الهاتف (المعرف الوحيد)</label>
-                                <input type="tel" id="r_phone" class="form-control" placeholder="2126... أو 06..." required>
-                                <div class="form-text text-warning small">⚠️ يجب أن يبدأ بـ 212 أو 0 (سيتم حفظه بصيغة 212)</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">كلمة المرور</label>
-                                <input type="password" id="r_pass" class="form-control" placeholder="أنشئ كلمة مرور" required>
-                            </div>
-                            <button type="submit" class="btn btn-success-custom w-100">إنشاء حساب</button>
-                        </form>
-                    </div>
-                </div>
+        <!-- TEXTE PRINCIPAL -->
+        <span class="big-icon"><i class="fas fa-clock"></i></span>
+        <div class="soon-title">قريباً <span>جداً</span></div>
+        <p class="sub-text">
+            طلب رحلات داخل مراكش بسهولة<br />
+            نعمل على إطلاق المنصة بأفضل شكل لتكون في خدمتك
+        </p>
+
+        <!-- SITE UNIQUE : UN SEUL SITE APPARAÎT À LA FOIS -->
+        <div class="sites-section">
+            <span class="sites-label">
+                <i class="fas fa-handshake"></i> مواقع صديقة <i class="fas fa-handshake"></i>
+            </span>
+            <div class="site-container" id="siteContainer">
+                <!-- les sites seront générés ici mais un seul visible à la fois -->
             </div>
         </div>
 
-        <!-- APP SECTION -->
-        <div id="appSection" class="hidden">
-            <div class="d-flex justify-content-between align-items-center mb-3 px-2">
-                <span class="badge bg-secondary fs-6 py-2">
-                    <i class="fas fa-user-circle"></i> <span id="displayUser"></span>
-                    <span id="adminBadge" class="badge bg-danger ms-2 hidden">ADMIN</span>
-                </span>
-                <button onclick="logout()" class="btn btn-sm btn-outline-danger rounded-pill px-3"><i class="fas fa-sign-out-alt"></i> خروج</button>
-            </div>
-
-            <!-- طلب رحلة بدل النشر -->
-            <div id="postFormContainer" class="custom-card p-3 mb-4">
-                <h5 class="mb-3 text-success"><i class="fas fa-plus-circle"></i> طلب رحلة داخل مراكش</h5>
-                <form id="rideForm" class="row g-3">
-                    <div class="col-6"><label class="form-label small">من أي حي؟</label><input type="text" id="fromCity" class="form-control" placeholder="مثال: جليز" required></div>
-                    <div class="col-6"><label class="form-label small">إلى أي حي؟</label><input type="text" id="toCity" class="form-control" placeholder="مثال: المنارة" required></div>
-                    <div class="col-6"><label class="form-label small">التوقيت من</label><input type="time" id="timeFrom" class="form-control" required></div>
-                    <div class="col-6"><label class="form-label small">إلى غاية</label><input type="time" id="timeTo" class="form-control" required></div>
-                    <div class="col-12 mt-3"><button type="submit" class="btn btn-success-custom w-100">طلب الرحلة الآن</button></div>
-                </form>
-            </div>
-
-            <div class="d-flex align-items-center mb-3 px-2">
-                <h5 class="m-0"><i class="fas fa-list-ul text-success"></i> الرحلات المطلوبة</h5>
-                <span class="badge bg-success ms-2 rounded-pill" id="ridesCount">0</span>
-                <button onclick="loadRides()" class="btn btn-sm btn-link text-white ms-auto"><i class="fas fa-sync-alt"></i> تحديث</button>
-            </div>
-            <div id="ridesList"></div>
-        </div>
     </div>
 
-    <div class="app-footer">
-        <div style="color: #2E7D32; font-weight: bold;">2026 Tri9k Marrakech -- M.Seddik ELidrissi</div>
+    <!-- FOOTER FIXE -->
+    <div class="credit-footer">
+        <i class="fas fa-code"></i> Créé par : <strong>M.Seddik ELidrissi</strong>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIVTPZpkHkNxahNlraEJqjBw5zINxdWnqfEfGQI9o-rsGlypqq1ZTZ9GwZH__apoyi/exec'; 
-        
-        let currentUser = null;
-        let isAdminMode = false;
+        // ----- LISTE DES SITES (nom + lien) -----
+        const sites = [
+            { name: 'راديو القرآن الكريم', url: 'https://radiocoran.vercel.app' },
+            { name: 'تلاوة و حفظ القرآن الكريم', url: 'https://tilawatquran.vercel.app' },
+            { name: 'آية اليوم للتدبر و التذكير اليومي', url: 'https://ayatoday.vercel.app' },
+            { name: 'منصة فضاء المعرفة', url: 'https://svque.vercel.app' },
+            { name: 'إذاعات عالمية بين يديك في مكان واحد', url: 'https://worldradios.vercel.app' },
+            { name: 'نكت مغربية ضحك و ترفيه بلا حدود', url: 'https://nokatapp.vercel.app' },
+        ];
 
-        if(sessionStorage.getItem('currentUser')) {
-            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-            showApp();
-        }
+        const container = document.getElementById('siteContainer');
+        let currentIndex = 0;
 
-        function validatePhone(phone) {
-            const p = phone.trim();
-            return /^(212|0)[6-7][0-9]{8}$/.test(p);
-        }
+        // Créer tous les éléments et les cacher
+        sites.forEach((site, index) => {
+            const link = document.createElement('a');
+            link.href = site.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.className = 'site-item';
+            link.innerHTML = `<i class="fas fa-external-link-alt"></i> ${site.name}`;
+            link.style.display = 'none';
+            link.dataset.index = index;
+            container.appendChild(link);
+        });
 
-        async function apiPost(payload) {
-            document.getElementById('loader').classList.remove('hidden');
-            try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                return true;
-            } catch (error) {
-                console.error(error);
-                Swal.fire('خطأ', 'مشكل في الاتصال بالسيرفر', 'error');
-                return false;
-            } finally {
-                setTimeout(() => document.getElementById('loader').classList.add('hidden'), 800);
-            }
-        }
-
-        // ==========================================
-        // INSCRIPTION
-        // ==========================================
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const pseudo = document.getElementById('r_pseudo').value.trim();
-            const phone = document.getElementById('r_phone').value.trim();
-            const pass = document.getElementById('r_pass').value;
-
-            if (!validatePhone(phone)) {
-                Swal.fire('خطأ', 'صيغة الرقم غير صحيحة. أدخل رقماً يبدأ بـ 212 أو 0 (مثال: 212661234567)', 'error');
-                return;
-            }
-
-            await apiPost({ action: 'register', pseudo, phone, password: pass });
-            
-            Swal.fire({
-                icon: 'info',
-                title: 'تم إرسال الطلب',
-                text: 'إذا كان الرقم غير مسجل، سيتم إنشاء الحساب. حاول تسجيل الدخول الآن.',
-                confirmButtonColor: '#2E7D32'
-            }).then(() => {
-                new bootstrap.Tab(document.querySelector('#authTab button[data-bs-target="#login"]')).show();
-                document.getElementById('l_phone').value = phone;
-                document.getElementById('regForm').reset();
+        // Fonction pour afficher un site avec son animation
+        function showSite(index) {
+            const items = container.querySelectorAll('.site-item');
+            // Cacher tous les sites
+            items.forEach(item => {
+                item.style.display = 'none';
+                item.style.opacity = '0';
+                item.style.animation = 'none';
+                void item.offsetHeight;
             });
-        });
 
-        // ==========================================
-        // CONNEXION
-        // ==========================================
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const phone = document.getElementById('l_phone').value.trim();
-            const pass = document.getElementById('l_pass').value;
-            
-            if (!validatePhone(phone)) {
-                Swal.fire('خطأ', 'صيغة الرقم غير صحيحة', 'error');
-                return;
-            }
+            const currentItem = items[index];
+            if (!currentItem) return;
 
-            document.getElementById('loader').classList.remove('hidden');
-            
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=checkLogin&phone=${encodeURIComponent(phone)}&pass=${encodeURIComponent(pass)}`);
-                const data = await res.json();
-                
-                if (data.valid && data.user) {
-                    currentUser = data.user;
-                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    showApp();
-                    Swal.fire({ icon: 'success', title: `مرحباً ${currentUser.pseudo}!`, timer: 1500, showConfirmButton: false });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'خطأ', text: data.message || 'رقم الهاتف أو كلمة المرور غير صحيحة', confirmButtonColor: '#d33' });
-                }
-            } catch (err) {
-                console.error(err);
-                Swal.fire('خطأ', 'مشكل في الاتصال بالسيرفر. تأكد من الرابط.', 'error');
-            } finally {
-                document.getElementById('loader').classList.add('hidden');
-            }
-        });
+            const animations = ['fadeIn', 'zoomIn', 'slideUp', 'slideLeft', 'bounceIn', 'flipIn', 'rotateIn', 'pulseGlow', 'slideDown'];
+            const animName = animations[index % animations.length];
 
-        function logout() {
-            sessionStorage.removeItem('currentUser');
-            isAdminMode = false;
-            location.reload();
+            currentItem.style.display = 'inline-flex';
+            currentItem.style.animation = `${animName} 0.8s ease forwards`;
+            currentItem.style.opacity = '0';
+
+            setTimeout(() => {
+                const nextIndex = (index + 1) % sites.length;
+                showSite(nextIndex);
+            }, 3000);
         }
 
-        function showApp() {
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('appSection').classList.remove('hidden');
-            document.getElementById('postFormContainer').classList.remove('hidden');
-            document.getElementById('displayUser').innerText = currentUser.pseudo;
-            loadRides();
-        }
-
-        // ==========================================
-        // ✅ FORMAT TIME - CORRECT HANDLING
-        // ==========================================
-        function formatTime(timeValue) {
-            if (!timeValue) return '--:--';
-            
-            if (typeof timeValue === 'string' && /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeValue)) {
-                return timeValue;
-            }
-            
-            if (timeValue instanceof Date && !isNaN(timeValue)) {
-                const h = timeValue.getHours().toString().padStart(2, '0');
-                const m = timeValue.getMinutes().toString().padStart(2, '0');
-                return `${h}:${m}`;
-            }
-            
-            if (typeof timeValue === 'number') {
-                if (timeValue < 100000) {
-                    const totalMinutes = Math.round(timeValue * 24 * 60);
-                    const hours = Math.floor(totalMinutes / 60) % 24;
-                    const minutes = totalMinutes % 60;
-                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-                }
-                const date = new Date(timeValue);
-                if (!isNaN(date)) {
-                    const h = date.getHours().toString().padStart(2, '0');
-                    const m = date.getMinutes().toString().padStart(2, '0');
-                    return `${h}:${m}`;
-                }
-            }
-            
-            if (typeof timeValue === 'string') {
-                const date = new Date(timeValue);
-                if (!isNaN(date)) {
-                    const h = date.getHours().toString().padStart(2, '0');
-                    const m = date.getMinutes().toString().padStart(2, '0');
-                    return `${h}:${m}`;
-                }
-                const timeMatch = timeValue.match(/([0-1]?[0-9]|2[0-3]):[0-5][0-9]/);
-                if (timeMatch) {
-                    return timeMatch[0];
-                }
-            }
-            
-            if (typeof timeValue === 'object' && timeValue !== null) {
-                if ('hours' in timeValue && 'minutes' in timeValue) {
-                    const h = timeValue.hours.toString().padStart(2, '0');
-                    const m = timeValue.minutes.toString().padStart(2, '0');
-                    return `${h}:${m}`;
-                }
-                if ('hour' in timeValue && 'minute' in timeValue) {
-                    const h = timeValue.hour.toString().padStart(2, '0');
-                    const m = timeValue.minute.toString().padStart(2, '0');
-                    return `${h}:${m}`;
-                }
-            }
-            
-            const str = String(timeValue);
-            const fallbackMatch = str.match(/([0-1]?[0-9]|2[0-3]):[0-5][0-9]/);
-            if (fallbackMatch) {
-                return fallbackMatch[0];
-            }
-            
-            console.warn('Could not format time:', timeValue);
-            return '--:--';
-        }
-
-        // ==========================================
-        // ✅ NEW: CHECK IF RIDE IS EXPIRED
-        // ==========================================
-        function isRideExpired(timeTo) {
-            if (!timeTo) return false;
-            
-            const now = new Date();
-            const currentHours = now.getHours();
-            const currentMinutes = now.getMinutes();
-            
-            let targetHours, targetMinutes;
-            
-            // Parse timeTo (supports various formats)
-            if (typeof timeTo === 'string' && /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeTo)) {
-                const parts = timeTo.split(':');
-                targetHours = parseInt(parts[0]);
-                targetMinutes = parseInt(parts[1]);
-            } else if (typeof timeTo === 'number' && timeTo < 100000) {
-                // Excel time format
-                const totalMinutes = Math.round(timeTo * 24 * 60);
-                targetHours = Math.floor(totalMinutes / 60) % 24;
-                targetMinutes = totalMinutes % 60;
-            } else {
-                // Try parsing as date
-                const date = new Date(timeTo);
-                if (!isNaN(date)) {
-                    targetHours = date.getHours();
-                    targetMinutes = date.getMinutes();
-                } else {
-                    return false;
-                }
-            }
-            
-            // Compare with current time
-            const currentTotalMinutes = currentHours * 60 + currentMinutes;
-            const targetTotalMinutes = targetHours * 60 + targetMinutes;
-            
-            return currentTotalMinutes > targetTotalMinutes;
-        }
-
-        async function loadRides() {
-            document.getElementById('loader').classList.remove('hidden');
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const data = await res.json();
-                
-                if(data.status === 'success') {
-                    renderRides(data.rides || []);
-                } else {
-                    document.getElementById('ridesList').innerHTML = '<div class="alert alert-warning">خطأ في تحميل البيانات</div>';
-                }
-            } catch(err) {
-                console.error(err);
-                document.getElementById('ridesList').innerHTML = '<div class="alert alert-danger">تعذر الاتصال بالسيرفر</div>';
-            } finally {
-                document.getElementById('loader').classList.add('hidden');
-            }
-        }
-
-        // ==========================================
-        // إرسال طلب رحلة
-        // ==========================================
-        document.getElementById('rideForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if(!currentUser) return Swal.fire('خطأ', 'يرجى إعادة تسجيل الدخول', 'error');
-
-            const ride = {
-                action: 'addRide',
-                owner: currentUser.pseudo,
-                phone: currentUser.phone,
-                from: document.getElementById('fromCity').value.trim(),
-                to: document.getElementById('toCity').value.trim(),
-                timeFrom: document.getElementById('timeFrom').value,
-                timeTo: document.getElementById('timeTo').value
-            };
-
-            await apiPost(ride);
-            e.target.reset();
-            Swal.fire({ toast:true, position:'top-end', icon:'success', title:'تم طلب الرحلة', showConfirmButton:false, timer:1500 });
-            loadRides();
-        });
-
-        // ==========================================
-        // ✅ عرض الرحلات المطلوبة - ICONS في FOOTER
-        // ✅ البطاقات الحمراء للرحلات المنتهية
-        // ==========================================
-        function renderRides(rides) {
-            const container = document.getElementById('ridesList');
-            document.getElementById('ridesCount').innerText = rides.length;
-            container.innerHTML = '';
-
-            if(rides.length === 0) {
-                container.innerHTML = `<div class="text-center p-5 text-muted"><i class="fas fa-taxi fa-3x mb-3 opacity-25"></i><p>لا توجد طلبات رحلات حالياً</p></div>`;
-                return;
-            }
-
-            [...rides].sort(() => Math.random() - 0.5).forEach(r => {
-                const isOwner = currentUser && currentUser.pseudo === r.owner;
-                const phoneStr = String(r.phone || '');
-                const waLink = `https://wa.me/${phoneStr}?text=${encodeURIComponent(`Salam, cheft talab rihla dyalek mn ${r.from} l ${r.to}...`)}`;
-                
-                const tFrom = formatTime(r.timeFrom);
-                const tTo = formatTime(r.timeTo);
-                
-                // ✅ NEW: Check if ride is expired
-                const expired = isRideExpired(r.timeTo);
-                
-                let deleteBtnHtml = '';
-                if (isOwner) {
-                    deleteBtnHtml = `<div class="mt-2 text-start"><button onclick="deleteRide(${r.id})" class="btn btn-sm btn-outline-danger rounded-pill px-3"><i class="fas fa-trash-alt"></i> حذف طلبي</button></div>`;
-                } else if (isAdminMode) {
-                    deleteBtnHtml = `<button onclick="deleteRide(${r.id})" class="admin-delete-btn"><i class="fas fa-skull-crossbones"></i> حذف كمسؤول</button>`;
-                }
-
-                // ✅ NEW: Add 'expired' class and expired badge
-                const expiredClass = expired ? 'expired' : '';
-                const expiredBadge = expired ? `<span class="expired-label"><i class="fas fa-clock"></i> انتهى الوقت</span>` : '';
-
-                container.innerHTML += `
-                    <div class="custom-card p-3 ${expiredClass}">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <div class="route-display">
-                                    <span class="route-label">من</span>
-                                    <span class="text-white">${r.from}</span>
-                                    <i class="fas fa-long-arrow-alt-left route-arrow"></i>
-                                    <span class="route-label">إلى</span>
-                                    <span class="text-success">${r.to}</span>
-                                    <span class="req-badge"><i class="fas fa-hand-paper"></i> طلب</span>
-                                    ${expiredBadge}
-                                </div>
-                                <div class="time-badge"><i class="far fa-clock"></i> بين ${tFrom} و ${tTo}</div>
-                                <div class="small mt-2 text-white-50"><i class="fas fa-user-circle"></i> ${r.owner}</div>
-                            </div>
-                        </div>
-                        
-                        <!-- ✅ NEW: Contact buttons at bottom -->
-                        <div class="contact-buttons-container">
-                            <a href="${waLink}" target="_blank" class="contact-btn btn-whatsapp" title="واتساب">
-                                <i class="fab fa-whatsapp"></i>
-                            </a>
-                            <a href="tel:+${phoneStr}" class="contact-btn btn-call" title="اتصال">
-                                <i class="fas fa-phone"></i>
-                            </a>
-                        </div>
-                        
-                        ${deleteBtnHtml}
-                    </div>`;
-            });
-        }
-
-        async function deleteRide(id) {
-            const msg = isAdminMode ? "هل أنت متأكد من حذف هذا الطلب كمسؤول؟" : "هل أنت متأكد من حذف طلبك؟";
-            const confirm = await Swal.fire({ title: 'تأكيد الحذف؟', text: msg, icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'نعم، احذفه', cancelButtonText: 'إلغاء' });
-            
-            if(confirm.isConfirmed) {
-                await apiPost({ action: 'deleteRide', id: id });
-                loadRides();
-                Swal.fire('تم الحذف!', '', 'success');
-            }
-        }
-
-        function toggleAdminMode() {
-            if(isAdminMode) {
-                isAdminMode = false;
-                document.querySelector('.admin-trigger').classList.remove('active');
-                document.getElementById('adminBadge').classList.add('hidden');
-                if(currentUser) document.getElementById('postFormContainer').classList.remove('hidden');
-                loadRides();
-                Swal.fire({ toast:true, position:'top-end', icon:'info', title:'تم الخروج من وضع المسؤول', showConfirmButton:false, timer:1500 });
-            } else {
-                Swal.fire({
-                    title: 'دخول المسؤول',
-                    input: 'password',
-                    inputLabel: 'أدخل كلمة المرور',
-                    confirmButtonText: 'تحقق',
-                    confirmButtonColor: '#d32f2f',
-                    showCancelButton: true,
-                    cancelButtonText: 'إلغاء'
-                }).then(res => {
-                    if(res.value === 'Seddik') {
-                        isAdminMode = true;
-                        document.querySelector('.admin-trigger').classList.add('active');
-                        document.getElementById('adminBadge').classList.remove('hidden');
-                        
-                        if(!currentUser) {
-                            document.getElementById('authSection').classList.add('hidden');
-                            document.getElementById('appSection').classList.remove('hidden');
-                            document.getElementById('postFormContainer').classList.add('hidden');
-                            document.getElementById('displayUser').innerText = "المسؤول";
-                        }
-                        
-                        loadRides();
-                        Swal.fire({ toast:true, position:'top-end', icon:'success', title:'مرحباً بك يا Seddik!', showConfirmButton:false, timer:1500 });
-                    } else if(res.value !== undefined) {
-                        Swal.fire('خطأ', 'كلمة المرور غير صحيحة', 'error');
-                    }
-                });
-            }
-        }
+        setTimeout(() => {
+            showSite(0);
+        }, 500);
     </script>
+
 </body>
 </html>
