@@ -108,7 +108,7 @@
     </div>
 
     <div class="app-header">
-        <button class="admin-trigger" onclick="toggleAdminMode()" title="Admin Access"><i class="fas fa-shield-alt"></i></button>
+        <button class="admin-trigger" onclick="toggleAdminMode()" title="دخول المسؤول"><i class="fas fa-shield-alt"></i></button>
         <h2><i class="fas fa-taxi"></i> طريقك - طلب رحلة</h2>
         <p class="mb-0 small opacity-75">طلب رحلة / شارك الكرسي مع ناس بحالك</p>
     </div>
@@ -131,7 +131,7 @@
                                 <div class="form-text text-warning small">⚠️ يقبل الأرقام التي تبدأ بـ 212 أو 0</div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Mot de passe</label>
+                                <label class="form-label">كلمة المرور</label>
                                 <input type="password" id="l_pass" class="form-control" placeholder="••••••" required>
                             </div>
                             <button type="submit" class="btn btn-success-custom w-100">دخول</button>
@@ -141,7 +141,7 @@
                     <div class="tab-pane fade" id="register">
                         <form id="regForm">
                             <div class="mb-3">
-                                <label class="form-label">Pseudo (للعرض فقط)</label>
+                                <label class="form-label">الاسم المستعار (للظهور فقط)</label>
                                 <input type="text" id="r_pseudo" class="form-control" placeholder="مثال: مسافر مراكش" required>
                             </div>
                             <div class="mb-3">
@@ -150,7 +150,7 @@
                                 <div class="form-text text-warning small">⚠️ يجب أن يبدأ بـ 212 أو 0 (سيتم حفظه بصيغة 212)</div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Mot de passe</label>
+                                <label class="form-label">كلمة المرور</label>
                                 <input type="password" id="r_pass" class="form-control" placeholder="أنشئ كلمة مرور" required>
                             </div>
                             <button type="submit" class="btn btn-success-custom w-100">إنشاء حساب</button>
@@ -219,7 +219,7 @@
                 return true;
             } catch (error) {
                 console.error(error);
-                Swal.fire('Erreur', 'مشكل في الاتصال بالسيرفر', 'error');
+                Swal.fire('خطأ', 'مشكل في الاتصال بالسيرفر', 'error');
                 return false;
             } finally {
                 setTimeout(() => document.getElementById('loader').classList.add('hidden'), 800);
@@ -283,7 +283,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                Swal.fire('Erreur', 'مشكل في الاتصال بالسيرفر. تأكد من URL.', 'error');
+                Swal.fire('خطأ', 'مشكل في الاتصال بالسيرفر. تأكد من الرابط.', 'error');
             } finally {
                 document.getElementById('loader').classList.add('hidden');
             }
@@ -419,11 +419,11 @@
                 if(data.status === 'success') {
                     renderRides(data.rides || []);
                 } else {
-                    document.getElementById('ridesList').innerHTML = '<div class="alert alert-warning">Erreur chargement données</div>';
+                    document.getElementById('ridesList').innerHTML = '<div class="alert alert-warning">خطأ في تحميل البيانات</div>';
                 }
             } catch(err) {
                 console.error(err);
-                document.getElementById('ridesList').innerHTML = '<div class="alert alert-danger">Impossible de se connecter au serveur</div>';
+                document.getElementById('ridesList').innerHTML = '<div class="alert alert-danger">تعذر الاتصال بالسيرفر</div>';
             } finally {
                 document.getElementById('loader').classList.add('hidden');
             }
@@ -434,7 +434,7 @@
         // ==========================================
         document.getElementById('rideForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if(!currentUser) return Swal.fire('Erreur', 'Veuillez vous reconnecter', 'error');
+            if(!currentUser) return Swal.fire('خطأ', 'يرجى إعادة تسجيل الدخول', 'error');
 
             const ride = {
                 action: 'addRide',
@@ -508,7 +508,7 @@
                         
                         <!-- ✅ NEW: Contact buttons at bottom -->
                         <div class="contact-buttons-container">
-                            <a href="${waLink}" target="_blank" class="contact-btn btn-whatsapp" title="WhatsApp">
+                            <a href="${waLink}" target="_blank" class="contact-btn btn-whatsapp" title="واتساب">
                                 <i class="fab fa-whatsapp"></i>
                             </a>
                             <a href="tel:+${phoneStr}" class="contact-btn btn-call" title="اتصال">
