@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طريقك مراكش - طلب رحلة</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root { --primary-green: #2E7D32; --dark-bg: #121212; --card-bg: #1E1E1E; --text-color: #e0e0e0; --input-bg: #2c2c2c; --label-color: #b0b0b0; --admin-red: #d32f2f; }
+        body { background-color: var(--dark-bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; }
+        label, .form-label, .small.text-muted { color: var(--label-color) !important; }
+        ::placeholder { color: #666 !important; opacity: 1; }
+        .app-header { background: linear-gradient(45deg, var(--primary-green), #1b5e20); padding: 25px 20px; border-radius: 0 0 25px 25px; text-align: center; margin-bottom: 20px; color: white; position: relative; }
+        .admin-trigger { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.5); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .admin-trigger.active { background: var(--admin-red); color: white; animation: pulse 2s infinite; }
+        .custom-card { background-color: var(--card-bg); border: none; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .form-control { background-color: var(--input-bg); border: 1px solid #444; color: white !important; border-radius: 10px; padding: 12px; }
+        .form-control:focus { background-color: #333; border-color: var(--primary-green); box-shadow: none; }
+        .btn-success-custom { background-color: var(--primary-green); border: none; border-radius: 10px; padding: 12px 20px; font-weight: bold; color: white; }
+        .contact-btn { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; text-decoration: none; color: white; }
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-call { background-color: #007bff; }
+        .route-display { font-size: 1.2rem; font-weight: 800; color: white; margin-bottom: 5px; }
+        .route-label { color: #a5d6a7; font-weight: bold; margin: 0 4px; }
+        .route-arrow { color: var(--primary-green); margin: 0 8px; }
+        .time-badge { background-color: rgba(46, 125, 50, 0.2); color: #81c784; padding: 4px 10px; border-radius: 8px; font-size: 0.9rem; display: inline-block; margin-top: 5px; }
+        .admin-delete-btn { background-color: rgba(211, 47, 47, 0.1); color: #ff5252; border: 1px solid rgba(211, 47, 47, 0.3); width: 100%; margin-top: 10px; padding: 8px; border-radius: 8px; font-weight: bold; }
+        .admin-delete-btn:hover { background-color: var(--admin-red); color: white; }
+        .app-footer { position: fixed; bottom: 0; width: 100%; background-color: #0f0f0f; color: #777; text-align: center; padding: 12px; font-size: 0.8rem; border-top: 1px solid #333; z-index: 1000; }
+        .hidden { display: none !important; }
+        .nav-tabs { border-bottom: 1px solid #444; }
+        .nav-link { color: #aaa; border: none; font-weight: bold; }
+        .nav-link.active { background: transparent; color: var(--primary-green) !important; border-bottom: 2px solid var(--primary-green); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; display:flex; justify-content:center; align-items:center; }
+        .req-badge { background-color: #ff9800; color: #000; padding: 2px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; margin-right: 8px; }
+    </style>
+</head>
+<body>
+
+    <div id="loader" class="loading-overlay hidden">
+        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
+    </div>
+
+    <div class="app-header">
+        <button class="admin-trigger" onclick="toggleAdminMode()" title="Admin Access"><i class="fas fa-shield-alt"></i></button>
+        <h2><i class="fas fa-taxi"></i> طريقك مراكش - طلب رحلة</h2>
+        <p class="mb-0 small opacity-75">طلب رحلة / شارك الكرسي مع ناس بحالك</p>
+    </div>
+
+    <div class="container">
+        <!-- AUTH SECTION -->
+        <div id="authSection">
+            <div class="custom-card p-4">
+                <ul class="nav nav-tabs nav-fill mb-3" id="authTab" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#login">تسجيل الدخول</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#register">حساب جديد</button></li>
+                </ul>
+                <div class="tab-content">
+                    <!-- LOGIN -->
+                    <div class="tab-pane fade show active" id="login">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label class="form-label">رقم الهاتف</label>
+                                <input type="tel" id="l_phone" class="form-control" placeholder="2126... أو 06..." required>
+                                <div class="form-text text-warning small">⚠️ يقبل الأرقام التي تبدأ بـ 212 أو 0</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mot de passe</label>
+                                <input type="password" id="l_pass" class="form-control" placeholder="••••••" required>
+                            </div>
+                            <button type="submit" class="btn btn-success-custom w-100">دخول</button>
+                        </form>
+                    </div>
+                    <!-- INSCRIPTION -->
+                    <div class="tab-pane fade" id="register">
+                        <form id="regForm">
+                            <div class="mb-3">
+                                <label class="form-label">Pseudo (للعرض فقط)</label>
+                                <input type="text" id="r_pseudo" class="form-control" placeholder="مثال: مسافر مراكش" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">رقم الهاتف (المعرف الوحيد)</label>
+                                <input type="tel" id="r_phone" class="form-control" placeholder="2126... أو 06..." required>
+                                <div class="form-text text-warning small">⚠️ يجب أن يبدأ بـ 212 أو 0 (سيتم حفظه بصيغة 212)</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mot de passe</label>
+                                <input type="password" id="r_pass" class="form-control" placeholder="أنشئ كلمة مرور" required>
+                            </div>
+                            <button type="submit" class="btn btn-success-custom w-100">إنشاء حساب</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- APP SECTION -->
+        <div id="appSection" class="hidden">
+            <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                <span class="badge bg-secondary fs-6 py-2">
+                    <i class="fas fa-user-circle"></i> <span id="displayUser"></span>
+                    <span id="adminBadge" class="badge bg-danger ms-2 hidden">ADMIN</span>
+                </span>
+                <button onclick="logout()" class="btn btn-sm btn-outline-danger rounded-pill px-3"><i class="fas fa-sign-out-alt"></i> خروج</button>
+            </div>
+
+            <!-- طلب رحلة بدل النشر -->
+            <div id="postFormContainer" class="custom-card p-3 mb-4">
+                <h5 class="mb-3 text-success"><i class="fas fa-plus-circle"></i> طلب رحلة داخل مراكش</h5>
+                <form id="rideForm" class="row g-3">
+                    <div class="col-6"><label class="form-label small">من أي حي؟</label><input type="text" id="fromCity" class="form-control" placeholder="مثال: جليز" required></div>
+                    <div class="col-6"><label class="form-label small">إلى أي حي؟</label><input type="text" id="toCity" class="form-control" placeholder="مثال: المنارة" required></div>
+                    <div class="col-6"><label class="form-label small">التوقيت من</label><input type="time" id="timeFrom" class="form-control" required></div>
+                    <div class="col-6"><label class="form-label small">إلى غاية</label><input type="time" id="timeTo" class="form-control" required></div>
+                    <div class="col-12 mt-3"><button type="submit" class="btn btn-success-custom w-100">طلب الرحلة الآن</button></div>
+                </form>
+            </div>
+
+            <div class="d-flex align-items-center mb-3 px-2">
+                <h5 class="m-0"><i class="fas fa-list-ul text-success"></i> الرحلات المطلوبة</h5>
+                <span class="badge bg-success ms-2 rounded-pill" id="ridesCount">0</span>
+                <button onclick="loadRides()" class="btn btn-sm btn-link text-white ms-auto"><i class="fas fa-sync-alt"></i> تحديث</button>
+            </div>
+            <div id="ridesList"></div>
+        </div>
+    </div>
+
+    <div class="app-footer">
+        <div style="color: #2E7D32; font-weight: bold;">2026 Tri9ek Marrakech -- M.Seddik ELidrissi</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ⚠️ BEDDEL HAD L'URL B DAK LI JATK MN GOOGLE APPS SCRIPT DEPLOYMENT
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIVTPZpkHkNxahNlraEJqjBw5zINxdWnqfEfGQI9o-rsGlypqq1ZTZ9GwZH__apoyi/exec'; 
+        
+        let currentUser = null;
+        let isAdminMode = false;
+
+        if(sessionStorage.getItem('currentUser')) {
+            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            showApp();
+        }
+
+        function validatePhone(phone) {
+            const p = phone.trim();
+            return /^(212|0)[6-7][0-9]{8}$/.test(p);
+        }
+
+        async function apiPost(payload) {
+            document.getElementById('loader').classList.remove('hidden');
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                return true;
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Erreur', 'مشكل في الاتصال بالسيرفر', 'error');
+                return false;
+            } finally {
+                setTimeout(() => document.getElementById('loader').classList.add('hidden'), 800);
+            }
+        }
+
+        // ==========================================
+        // INSCRIPTION
+        // ==========================================
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pseudo = document.getElementById('r_pseudo').value.trim();
+            const phone = document.getElementById('r_phone').value.trim();
+            const pass = document.getElementById('r_pass').value;
+
+            if (!validatePhone(phone)) {
+                Swal.fire('خطأ', 'صيغة الرقم غير صحيحة. أدخل رقماً يبدأ بـ 212 أو 0 (مثال: 212661234567)', 'error');
+                return;
+            }
+
+            await apiPost({ action: 'register', pseudo, phone, password: pass });
+            
+            Swal.fire({
+                icon: 'info',
+                title: 'تم إرسال الطلب',
+                text: 'إذا كان الرقم غير مسجل، سيتم إنشاء الحساب. حاول تسجيل الدخول الآن.',
+                confirmButtonColor: '#2E7D32'
+            }).then(() => {
+                new bootstrap.Tab(document.querySelector('#authTab button[data-bs-target="#login"]')).show();
+                document.getElementById('l_phone').value = phone;
+                document.getElementById('regForm').reset();
+            });
+        });
+
+        // ==========================================
+        // CONNEXION
+        // ==========================================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('l_phone').value.trim();
+            const pass = document.getElementById('l_pass').value;
+            
+            if (!validatePhone(phone)) {
+                Swal.fire('خطأ', 'صيغة الرقم غير صحيحة', 'error');
+                return;
+            }
+
+            document.getElementById('loader').classList.remove('hidden');
+            
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=checkLogin&phone=${encodeURIComponent(phone)}&pass=${encodeURIComponent(pass)}`);
+                const data = await res.json();
+                
+                if (data.valid && data.user) {
+                    currentUser = data.user;
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showApp();
+                    Swal.fire({ icon: 'success', title: `مرحباً ${currentUser.pseudo}!`, timer: 1500, showConfirmButton: false });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'خطأ', text: data.message || 'رقم الهاتف أو كلمة المرور غير صحيحة', confirmButtonColor: '#d33' });
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Erreur', 'مشكل في الاتصال بالسيرفر. تأكد من URL.', 'error');
+            } finally {
+                document.getElementById('loader').classList.add('hidden');
+            }
+        });
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            isAdminMode = false;
+            location.reload();
+        }
+
+        function showApp() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+            document.getElementById('postFormContainer').classList.remove('hidden');
+            document.getElementById('displayUser').innerText = currentUser.pseudo;
+            loadRides();
+        }
+
+        // ==========================================
+        // ✅ FIXED: FORMAT TIME - CORRECT HANDLING
+        // ==========================================
+        function formatTime(timeValue) {
+            // If timeValue is null, undefined, or empty
+            if (!timeValue) return '--:--';
+            
+            // If it's already a string in HH:MM format
+            if (typeof timeValue === 'string' && /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeValue)) {
+                return timeValue;
+            }
+            
+            // If it's a Date object
+            if (timeValue instanceof Date && !isNaN(timeValue)) {
+                const h = timeValue.getHours().toString().padStart(2, '0');
+                const m = timeValue.getMinutes().toString().padStart(2, '0');
+                return `${h}:${m}`;
+            }
+            
+            // If it's a number (timestamp or Excel serial date)
+            if (typeof timeValue === 'number') {
+                // Check if it's an Excel date serial (days since 1899-12-30)
+                if (timeValue < 100000) {
+                    // Convert Excel time to hours and minutes
+                    const totalMinutes = Math.round(timeValue * 24 * 60);
+                    const hours = Math.floor(totalMinutes / 60) % 24;
+                    const minutes = totalMinutes % 60;
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                }
+                // If it's a timestamp (milliseconds since 1970)
+                const date = new Date(timeValue);
+                if (!isNaN(date)) {
+                    const h = date.getHours().toString().padStart(2, '0');
+                    const m = date.getMinutes().toString().padStart(2, '0');
+                    return `${h}:${m}`;
+                }
+            }
+            
+            // If it's a string that might contain a date
+            if (typeof timeValue === 'string') {
+                // Try to parse as date string
+                const date = new Date(timeValue);
+                if (!isNaN(date)) {
+                    const h = date.getHours().toString().padStart(2, '0');
+                    const m = date.getMinutes().toString().padStart(2, '0');
+                    return `${h}:${m}`;
+                }
+                
+                // Try to extract HH:MM from a longer string
+                const timeMatch = timeValue.match(/([0-1]?[0-9]|2[0-3]):[0-5][0-9]/);
+                if (timeMatch) {
+                    return timeMatch[0];
+                }
+            }
+            
+            // If it's an object with hours and minutes
+            if (typeof timeValue === 'object' && timeValue !== null) {
+                if ('hours' in timeValue && 'minutes' in timeValue) {
+                    const h = timeValue.hours.toString().padStart(2, '0');
+                    const m = timeValue.minutes.toString().padStart(2, '0');
+                    return `${h}:${m}`;
+                }
+                if ('hour' in timeValue && 'minute' in timeValue) {
+                    const h = timeValue.hour.toString().padStart(2, '0');
+                    const m = timeValue.minute.toString().padStart(2, '0');
+                    return `${h}:${m}`;
+                }
+            }
+            
+            // If nothing works, try one last thing - convert to string and search for time pattern
+            const str = String(timeValue);
+            const fallbackMatch = str.match(/([0-1]?[0-9]|2[0-3]):[0-5][0-9]/);
+            if (fallbackMatch) {
+                return fallbackMatch[0];
+            }
+            
+            // Final fallback
+            console.warn('Could not format time:', timeValue);
+            return '--:--';
+        }
+
+        async function loadRides() {
+            document.getElementById('loader').classList.remove('hidden');
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const data = await res.json();
+                
+                if(data.status === 'success') {
+                    renderRides(data.rides || []);
+                } else {
+                    document.getElementById('ridesList').innerHTML = '<div class="alert alert-warning">Erreur chargement données</div>';
+                }
+            } catch(err) {
+                console.error(err);
+                document.getElementById('ridesList').innerHTML = '<div class="alert alert-danger">Impossible de se connecter au serveur</div>';
+            } finally {
+                document.getElementById('loader').classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // إرسال طلب رحلة (بدل نشر رحلة)
+        // ==========================================
+        document.getElementById('rideForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser) return Swal.fire('Erreur', 'Veuillez vous reconnecter', 'error');
+
+            const ride = {
+                action: 'addRide',
+                owner: currentUser.pseudo,
+                phone: currentUser.phone,
+                from: document.getElementById('fromCity').value.trim(),
+                to: document.getElementById('toCity').value.trim(),
+                timeFrom: document.getElementById('timeFrom').value,
+                timeTo: document.getElementById('timeTo').value
+            };
+
+            await apiPost(ride);
+            e.target.reset();
+            Swal.fire({ toast:true, position:'top-end', icon:'success', title:'تم طلب الرحلة', showConfirmButton:false, timer:1500 });
+            loadRides();
+        });
+
+        // ==========================================
+        // عرض الرحلات المطلوبة مع علامة "طلب"
+        // ✅ Updated: Shows "من ... إلى ..." for locations
+        // ✅ Time stays as "بين ... و ..."
+        // ==========================================
+        function renderRides(rides) {
+            const container = document.getElementById('ridesList');
+            document.getElementById('ridesCount').innerText = rides.length;
+            container.innerHTML = '';
+
+            if(rides.length === 0) {
+                container.innerHTML = `<div class="text-center p-5 text-muted"><i class="fas fa-taxi fa-3x mb-3 opacity-25"></i><p>لا توجد طلبات رحلات حالياً</p></div>`;
+                return;
+            }
+
+            [...rides].sort(() => Math.random() - 0.5).forEach(r => {
+                const isOwner = currentUser && currentUser.pseudo === r.owner;
+                const phoneStr = String(r.phone || '');
+                const waLink = `https://wa.me/${phoneStr}?text=${encodeURIComponent(`Salam, cheft talab rihla dyalek mn ${r.from} l ${r.to}...`)}`;
+                
+                // ✅ Use the fixed formatTime function
+                const tFrom = formatTime(r.timeFrom);
+                const tTo = formatTime(r.timeTo);
+                
+                let deleteBtnHtml = '';
+                if (isOwner) {
+                    deleteBtnHtml = `<div class="mt-2 text-start"><button onclick="deleteRide(${r.id})" class="btn btn-sm btn-outline-danger rounded-pill px-3"><i class="fas fa-trash-alt"></i> حذف طلبي</button></div>`;
+                } else if (isAdminMode) {
+                    deleteBtnHtml = `<button onclick="deleteRide(${r.id})" class="admin-delete-btn"><i class="fas fa-skull-crossbones"></i> حذف كمسؤول</button>`;
+                }
+
+                // ✅ Updated location display with "من" and "إلى"
+                // ✅ Time display stays as "بين ... و ..."
+                container.innerHTML += `
+                    <div class="custom-card p-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="route-display">
+                                    <span class="route-label">من</span>
+                                    <span class="text-white">${r.from}</span>
+                                    <i class="fas fa-long-arrow-alt-left route-arrow"></i>
+                                    <span class="route-label">إلى</span>
+                                    <span class="text-success">${r.to}</span>
+                                    <span class="req-badge"><i class="fas fa-hand-paper"></i> طلب</span>
+                                </div>
+                                <div class="time-badge"><i class="far fa-clock"></i> بين ${tFrom} و ${tTo}</div>
+                                <div class="small mt-2 text-white-50"><i class="fas fa-user-circle"></i> ${r.owner}</div>
+                            </div>
+                            <div class="d-flex flex-column gap-2 ms-3">
+                                <a href="${waLink}" target="_blank" class="contact-btn btn-whatsapp"><i class="fab fa-whatsapp"></i></a>
+                                <a href="tel:+${phoneStr}" class="contact-btn btn-call"><i class="fas fa-phone"></i></a>
+                            </div>
+                        </div>
+                        ${deleteBtnHtml}
+                    </div>`;
+            });
+        }
+
+        async function deleteRide(id) {
+            const msg = isAdminMode ? "هل أنت متأكد من حذف هذا الطلب كمسؤول؟" : "هل أنت متأكد من حذف طلبك؟";
+            const confirm = await Swal.fire({ title: 'تأكيد الحذف؟', text: msg, icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'نعم، احذفه', cancelButtonText: 'إلغاء' });
+            
+            if(confirm.isConfirmed) {
+                await apiPost({ action: 'deleteRide', id: id });
+                loadRides();
+                Swal.fire('تم الحذف!', '', 'success');
+            }
+        }
+
+        function toggleAdminMode() {
+            if(isAdminMode) {
+                isAdminMode = false;
+                document.querySelector('.admin-trigger').classList.remove('active');
+                document.getElementById('adminBadge').classList.add('hidden');
+                if(currentUser) document.getElementById('postFormContainer').classList.remove('hidden');
+                loadRides();
+                Swal.fire({ toast:true, position:'top-end', icon:'info', title:'تم الخروج من وضع المسؤول', showConfirmButton:false, timer:1500 });
+            } else {
+                Swal.fire({
+                    title: 'دخول المسؤول',
+                    input: 'password',
+                    inputLabel: 'أدخل كلمة المرور',
+                    confirmButtonText: 'تحقق',
+                    confirmButtonColor: '#d32f2f',
+                    showCancelButton: true,
+                    cancelButtonText: 'إلغاء'
+                }).then(res => {
+                    if(res.value === 'Seddik') {
+                        isAdminMode = true;
+                        document.querySelector('.admin-trigger').classList.add('active');
+                        document.getElementById('adminBadge').classList.remove('hidden');
+                        
+                        if(!currentUser) {
+                            document.getElementById('authSection').classList.add('hidden');
+                            document.getElementById('appSection').classList.remove('hidden');
+                            document.getElementById('postFormContainer').classList.add('hidden');
+                            document.getElementById('displayUser').innerText = "المسؤول";
+                        }
+                        
+                        loadRides();
+                        Swal.fire({ toast:true, position:'top-end', icon:'success', title:'مرحباً بك يا Seddik!', showConfirmButton:false, timer:1500 });
+                    } else if(res.value !== undefined) {
+                        Swal.fire('خطأ', 'كلمة المرور غير صحيحة', 'error');
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
